@@ -1,0 +1,97 @@
+---
+import { products } from "../data/products";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+  <main>
+    <div class="mx-auto mb-20 min-h-screen">
+      <h1
+        class="leading-relaxed text-blue-900 font-extrabold text-4xl text-center mt-4 py-2 sm:py-4"
+      >
+        Your Cart
+      </h1>
+      <div class="min-h-80 max-w-3xl my-4 sm:my-8 mx-auto w-full overflow-auto">
+        <table class="mx-auto">
+          <thead>
+            <tr class="uppercase text-base sm:text-sm border-b border-blue-800">
+              <th class="text-blue-900 px-6 py-4 font-medium">PRODUCT</th>
+              <th class="text-blue-900 font-medium px-6 py-4">QUANTITY</th>
+              <th class="text-blue-900 font-medium px-6 py-4">SIZE</th>
+              <th class="text-blue-900 font-medium px-6 py-4">PRICE</th>
+              <th class="text-blue-900 font-medium px-6 py-4">Total</th>
+              <th class="text-blue-900 font-medium px-6 py-4">REMOVE</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y" id="products"></tbody>
+        </table>
+      </div>
+
+      <div class="max-w-sm mx-auto space-y-4 px-2">
+        <button
+          id="checkout"
+          class="p-2 bg-blue-800 text-white w-full mt-3 rounded-sm font-semibold text-xl flex justify-center items-center hover:bg-blue-900"
+        >
+          Check Out
+        </button>
+        <a
+          href="/"
+          class="border border-blue-800 text-lg text-blue-900 font-semibold pt-2 pb-1 leading-relaxed flex justify-center items-center focus:outline-none w-full hover:bg-blue-100 rounded-sm"
+        >
+          Back to all Products
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script slot="scripts" define:vars={{ products }}>
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+    const $products = document.getElementById("products");
+    const $checkout = document.getElementById("checkout");
+
+    cart.forEach((item) => {
+      const product = products.find((product) => product.id === item.productId);
+      const size = product.sizes.find((size) => size.label === item.size);
+
+      $products.innerHTML += `<tr class="text-sm sm:text-base text-gray-600 text-center">
+        <td class="font-primary font-medium px-4 sm:px-6 py-4 flex items-center">
+          <img src="./images/${
+            product.images[0]
+          }" class="sm:inline-flex" height="64" width="64" />
+          <a href="product.html?id=${product.id}" class="pt-1">${product.name}</a>
+        </td>
+        <td class="font-primary font-medium px-4 sm:px-6 py-4">
+          <span class="text-lg">${item.quantity}</span>
+        </td>
+        <td class="font-primary font-medium px-4 sm:px-6 py-4">
+          <span class="text-lg">${size.label}</span>
+        </td>
+        <td class="font-primary font-medium px-4 sm:px-6 py-4">
+          <span class="text-lg">$${size.price}</span>
+        </td>
+        <td class="font-primary font-medium px-4 sm:px-6 py-4">
+          <span class="text-lg">$${item.quantity * size.price}</span>
+        </td>
+        <td class="font-primary font-medium px-4 sm:px-6 py-4">
+          <button class="border border-blue-900 hover:bg-blue-100 p-1" id="remove-button">
+            <img src=" /images/close.png" class="w-5 h-5" />
+          </button>
+        </td>
+      </tr>`;
+    });
+
+    $products.querySelectorAll("#remove-button").forEach(($btn, index) => {
+      $btn.addEventListener("click", () => {
+        cart.splice(index, 1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        window.location.reload();
+      });
+    });
+
+    $checkout.addEventListener("click", () => {
+      localStorage.setItem("cart", JSON.stringify([]));
+      window.location.reload();
+    });
+  </script>
+</Layout>
